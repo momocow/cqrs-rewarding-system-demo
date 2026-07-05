@@ -32,7 +32,7 @@ module.exports = {
     ]);
 
     // Three calendar-month sessions with varied totals so the bars differ.
-    const month = (offset) => new Date(2026, 4 + offset, 1); // May, Jun, Jul 2026
+    const month = (offset) => new Date(Date.UTC(2026, 4 + offset, 1)); // May, Jun, Jul 2026 (UTC)
     const sessions = [
       { total_transaction_amount: 2500, total_receipt_count: 4 },
       { total_transaction_amount: 5000, total_receipt_count: 10 },
