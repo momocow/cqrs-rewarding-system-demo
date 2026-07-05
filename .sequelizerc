@@ -1,0 +1,9 @@
+const path = require('path');
+
+const databaseDir = path.resolve(__dirname, 'sequelize');
+
+module.exports = {
+  'config': path.resolve(databaseDir, 'config.json'),
+  'seeders-path': path.resolve(databaseDir, 'seeders'),
+  'migrations-path': path.resolve(databaseDir, 'migrations'),
+};

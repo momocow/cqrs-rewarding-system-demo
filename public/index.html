@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reward Sessions Demo</title>
+    <style>
+      :root {
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --text: #1c2430;
+        --muted: #6b7684;
+        --border: #e2e6ea;
+        --track: #eceef1;
+        --txn: #4f7cff;
+        --rcpt: #16b981;
+        --reached: #f5a524;
+        --danger: #e5484d;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #14171c;
+          --card: #1e232b;
+          --text: #e8ecf1;
+          --muted: #98a2b3;
+          --border: #2b323c;
+          --track: #2b323c;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+      .wrap {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 32px 24px 64px;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 4px;
+      }
+      p.sub {
+        margin: 0 0 24px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .org-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+      }
+      label {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      select,
+      input {
+        font: inherit;
+        padding: 7px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text);
+      }
+      .credit {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 20px;
+      }
+      .credit b {
+        color: var(--text);
+      }
+      .tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font: inherit;
+        font-size: 13px;
+        padding: 7px 13px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--muted);
+        cursor: pointer;
+        user-select: none;
+      }
+      .tab.active {
+        background: var(--txn);
+        border-color: var(--txn);
+        color: #fff;
+      }
+      .tab .reset {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        font-size: 13px;
+        line-height: 1;
+        opacity: 0.85;
+      }
+      .tab .reset:hover {
+        background: rgba(255, 255, 255, 0.25);
+        opacity: 1;
+      }
+      #panel {
+        margin-bottom: 20px;
+      }
+      /* transaction form (wider) beside a 30%-narrower receipt form */
+      .forms {
+        display: grid;
+        grid-template-columns: 1fr 0.7fr;
+        gap: 16px;
+        align-items: start;
+      }
+      @media (max-width: 720px) {
+        .forms {
+          grid-template-columns: 1fr;
+        }
+      }
+      /* two-column field layout inside the transaction form */
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 12px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 22px;
+      }
+      .range {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 22px;
+      }
+      .bar-block {
+        margin-bottom: 34px;
+      }
+      .bar-block:last-child {
+        margin-bottom: 0;
+      }
+      .bar-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 10px;
+      }
+      .bar-title {
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .points {
+        font-weight: 600;
+        font-size: 12px;
+        color: var(--reached);
+        margin-left: 4px;
+      }
+      .bar-value {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .track {
+        position: relative;
+        height: 14px;
+        background: var(--track);
+        border-radius: 999px;
+      }
+      .fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.35s ease;
+      }
+      .fill.txn {
+        background: var(--txn);
+      }
+      .fill.rcpt {
+        background: var(--rcpt);
+      }
+      .tick {
+        position: absolute;
+        top: -4px;
+        width: 2px;
+        height: 22px;
+        background: var(--muted);
+        opacity: 0.5;
+        transform: translateX(-1px);
+      }
+      .tick.reached {
+        background: var(--reached);
+        opacity: 1;
+      }
+      .ticklabels {
+        position: relative;
+        height: 32px;
+        margin-top: 6px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .ticklabel {
+        position: absolute;
+        transform: translateX(-50%);
+        text-align: center;
+        white-space: nowrap;
+      }
+      .ticklabel.reached {
+        color: var(--reached);
+        font-weight: 600;
+      }
+      .empty {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      form.card h2 {
+        font-size: 15px;
+        margin: 0 0 14px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 10px;
+      }
+      .field input,
+      .field select {
+        width: 100%;
+      }
+      button.submit {
+        font: inherit;
+        font-weight: 600;
+        width: 100%;
+        padding: 9px;
+        margin-top: 4px;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        cursor: pointer;
+      }
+      button.submit.txn {
+        background: var(--txn);
+      }
+      button.submit.rcpt {
+        background: var(--rcpt);
+      }
+      .status {
+        font-size: 12px;
+        color: var(--muted);
+        min-height: 16px;
+        margin-top: 8px;
+      }
+      .live {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--muted);
+        margin-left: auto;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: #c0c6cd;
+      }
+      .dot.on {
+        background: var(--rcpt);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Reward Sessions</h1>
+      <p class="sub">
+        Transaction rewards by spend ratio, receipt rewards by count. Live
+        updates over SSE.
+      </p>
+
+      <div class="org-row" id="orgRow" hidden>
+        <label for="org">Organization</label>
+        <select id="org"></select>
+        <span class="live"
+          ><span class="dot" id="liveDot"></span
+          ><span id="liveText">connecting…</span></span
+        >
+      </div>
+      <div class="credit" id="credit"></div>
+
+      <div class="tabs" id="tabs"></div>
+
+      <div id="panel"></div>
+
+      <div class="forms">
+        <form class="card" id="txnForm">
+          <h2>Add transaction</h2>
+          <div class="grid2">
+            <div class="field">
+              <label>Card ID</label><input name="cardId" value="card-001" />
+            </div>
+            <div class="field">
+              <label>Type</label>
+              <select name="type">
+                <option value="spend">spend</option>
+                <option value="refund">refund</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Amount</label
+              ><input name="amount" type="number" value="1000" min="0" />
+            </div>
+            <div class="field">
+              <label>Merchant</label
+              ><input name="merchant" value="Demo Merchant" />
+            </div>
+          </div>
+          <button class="submit txn" type="submit">Create transaction</button>
+          <div class="status" id="txnStatus"></div>
+        </form>
+
+        <form class="card" id="rcptForm">
+          <h2>Add receipt</h2>
+          <div class="field">
+            <label>Content</label><input name="content" value="Demo receipt" />
+          </div>
+          <button class="submit rcpt" type="submit">Create receipt</button>
+          <div class="status" id="rcptStatus"></div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const state = { data: null, orgIndex: 0, sessionIndex: 0 };
+
+      const fmtDate = (d) =>
+        new Date(d).toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
+      const pct = (n) => `${Math.round(n * 1000) / 10}%`;
+      const selectedOrg = () => state.data?.organizations[state.orgIndex];
+
+      async function fetchData() {
+        const res = await fetch('/reward-sessions');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      }
+
+      async function init() {
+        try {
+          state.data = await fetchData();
+        } catch (err) {
+          document.getElementById('panel').innerHTML =
+            `<div class="card empty">Failed to load data: ${err.message}</div>`;
+          return;
+        }
+        await ensureCurrentMonth();
+        renderOrgs();
+        renderTabs();
+        renderPanel();
+        setupForms();
+        connectSse();
+      }
+
+      // if no session covers the current calendar month, create one
+      async function ensureCurrentMonth() {
+        const now = Date.now();
+        const covered = state.data.sessions.some((s) => {
+          const start = new Date(s.startTime).getTime();
+          const end = new Date(s.endTime).getTime();
+          return start <= now && now < end;
+        });
+        if (covered) return;
+
+        const ref = new Date();
+        const start = new Date(ref.getFullYear(), ref.getMonth(), 1);
+        const end = new Date(ref.getFullYear(), ref.getMonth() + 1, 1);
+        try {
+          await postSession(start, end);
+          state.data = await fetchData();
+          state.sessionIndex = 0; // newest (current month) is first in DESC order
+        } catch {
+          // non-fatal for the demo
+        }
+      }
+
+      // refetch without resetting the org/tab selection (used by SSE, forms, CRUD)
+      async function refresh() {
+        try {
+          state.data = await fetchData();
+        } catch {
+          return;
+        }
+        state.sessionIndex = Math.max(
+          0,
+          Math.min(state.sessionIndex, state.data.sessions.length - 1),
+        );
+        renderTabs();
+        renderPanel();
+      }
+
+      function renderOrgs() {
+        const orgs = state.data.organizations;
+        const row = document.getElementById('orgRow');
+        const sel = document.getElementById('org');
+        if (!orgs.length) {
+          row.hidden = true;
+          return;
+        }
+        row.hidden = false;
+        sel.innerHTML = orgs
+          .map(
+            (o, i) => `<option value="${i}">${o.name || o.id.slice(0, 8)}</option>`,
+          )
+          .join('');
+        sel.value = String(state.orgIndex);
+        sel.onchange = (e) => {
+          state.orgIndex = Number(e.target.value);
+          renderPanel();
+        };
+      }
+
+      function renderTabs() {
+        const tabs = document.getElementById('tabs');
+        tabs.innerHTML = '';
+
+        state.data.sessions.forEach((s, i) => {
+          const active = i === state.sessionIndex;
+          const chip = document.createElement('button');
+          chip.className = `tab ${active ? 'active' : ''}`;
+          chip.onclick = () => {
+            state.sessionIndex = i;
+            renderTabs();
+            renderPanel();
+          };
+
+          const label = document.createElement('span');
+          label.textContent = fmtDate(s.startTime);
+          chip.appendChild(label);
+
+          // only the active chip gets a reset control
+          if (active) {
+            const reset = document.createElement('span');
+            reset.className = 'reset';
+            reset.textContent = '⟳';
+            reset.title = 'Reset this session (clears its transactions & receipts)';
+            reset.onclick = (e) => {
+              e.stopPropagation();
+              resetSession(s);
+            };
+            chip.appendChild(reset);
+          }
+
+          tabs.appendChild(chip);
+        });
+      }
+
+      function bar(title, valueText, points, fillRatio, cls, ticks) {
+        const fillPct = pct(Math.max(0, Math.min(fillRatio, 1)));
+        const tickEls = ticks
+          .map(
+            (t) =>
+              `<div class="tick ${t.reached ? 'reached' : ''}" style="left:${pct(t.pos)}"></div>`,
+          )
+          .join('');
+        const labelEls = ticks
+          .map(
+            (t) =>
+              `<div class="ticklabel ${t.reached ? 'reached' : ''}" style="left:${pct(t.pos)}">${t.label}</div>`,
+          )
+          .join('');
+        return `
+          <div class="bar-block">
+            <div class="bar-head">
+              <span class="bar-title">${title} <span class="points">${points.toLocaleString()} pts</span></span>
+              <span class="bar-value">${valueText}</span>
+            </div>
+            <div class="track">
+              <div class="fill ${cls}" style="width:${fillPct}"></div>
+              ${tickEls}
+            </div>
+            <div class="ticklabels">${labelEls}</div>
+          </div>`;
+      }
+
+      function renderPanel() {
+        const panel = document.getElementById('panel');
+        const org = selectedOrg();
+        document.getElementById('credit').innerHTML = org
+          ? `Credit limit: <b>${org.creditLimit.toLocaleString()}</b>`
+          : '';
+
+        if (!state.data.sessions.length) {
+          panel.innerHTML = `<div class="card empty">No reward sessions — use “+ New Reward Session”.</div>`;
+          return;
+        }
+
+        const s = state.data.sessions[state.sessionIndex];
+
+        const txnPolicies = [...s.transactionRewardPolicies].sort(
+          (a, b) => a.threshold - b.threshold,
+        );
+        const maxThreshold = txnPolicies.length
+          ? txnPolicies[txnPolicies.length - 1].threshold
+          : 1;
+        const ratio = org ? s.totalTransactionAmount / org.creditLimit : 0;
+        const txnTicks = txnPolicies.map((p) => ({
+          pos: p.threshold / maxThreshold,
+          reached: ratio >= p.threshold,
+          label: `${Math.round(p.threshold * 100)}%<br>+${p.points}`,
+        }));
+        const txnValue = org
+          ? `${pct(ratio)} of limit (${s.totalTransactionAmount.toLocaleString()} / ${org.creditLimit.toLocaleString()})`
+          : 'select an organization';
+
+        const rcptPolicy = [...s.receiptRewardPolicies].sort(
+          (a, b) => a.threshold - b.threshold,
+        )[0];
+        const rcptThreshold = rcptPolicy ? rcptPolicy.threshold : 1;
+        const rcptTicks = rcptPolicy
+          ? [
+              {
+                pos: 1,
+                reached: s.totalReceiptCount >= rcptPolicy.threshold,
+                label: `${rcptPolicy.threshold}<br>+${rcptPolicy.points}`,
+              },
+            ]
+          : [];
+
+        panel.innerHTML = `
+          <div class="card">
+            <div class="range">${fmtDate(s.startTime)} — ${fmtDate(s.endTime)}</div>
+            ${bar('Transaction rewards', txnValue, s.totalTransactionPointAmount, ratio / maxThreshold, 'txn', txnTicks)}
+            ${bar('Receipt rewards', `${s.totalReceiptCount} / ${rcptThreshold} receipts`, s.totalReceiptPointAmount, s.totalReceiptCount / rcptThreshold, 'rcpt', rcptTicks)}
+          </div>`;
+      }
+
+      async function postSession(start, end) {
+        const res = await fetch('/reward-sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            startTime: start.toISOString(),
+            endTime: end.toISOString(),
+          }),
+        });
+        if (!res.ok) throw new Error(`POST /reward-sessions ${res.status}`);
+      }
+
+      // reset a session in place: clear its window's transactions & receipts,
+      // delete the session (cascades points), then recreate the same window.
+      async function resetSession(session) {
+        const from = session.startTime;
+        const to = session.endTime;
+        const q = `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+        try {
+          await fetch(`/transactions?${q}`, { method: 'DELETE' });
+          await fetch(`/receipts?${q}`, { method: 'DELETE' });
+          await fetch(`/reward-sessions/${session.id}`, { method: 'DELETE' });
+          await postSession(new Date(from), new Date(to));
+          await refresh();
+        } catch (err) {
+          alert(`Failed to reset session: ${err.message}`);
+        }
+      }
+
+      function setupForms() {
+        document.getElementById('txnForm').onsubmit = async (e) => {
+          e.preventDefault();
+          const org = selectedOrg();
+          const status = document.getElementById('txnStatus');
+          if (!org) return (status.textContent = 'select an organization first');
+          const f = e.target;
+          await submit(
+            '/transactions',
+            {
+              organizationId: org.id,
+              cardId: f.cardId.value,
+              amount: Number(f.amount.value),
+              type: f.type.value,
+              merchant: f.merchant.value,
+            },
+            status,
+          );
+        };
+
+        document.getElementById('rcptForm').onsubmit = async (e) => {
+          e.preventDefault();
+          const org = selectedOrg();
+          const status = document.getElementById('rcptStatus');
+          if (!org) return (status.textContent = 'select an organization first');
+          const f = e.target;
+          await submit(
+            '/receipts',
+            { organizationId: org.id, content: f.content.value },
+            status,
+          );
+        };
+      }
+
+      async function submit(url, body, status) {
+        status.textContent = 'submitting…';
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          status.textContent = 'created — updating…';
+          // the recognize/apply saga runs asynchronously; refetch shortly after
+          setTimeout(() => {
+            refresh();
+            status.textContent = 'done';
+          }, 600);
+        } catch (err) {
+          status.textContent = `failed: ${err.message}`;
+        }
+      }
+
+      function connectSse() {
+        const dot = document.getElementById('liveDot');
+        const text = document.getElementById('liveText');
+        const es = new EventSource('/reward-sessions/events');
+        es.onopen = () => {
+          dot.classList.add('on');
+          text.textContent = 'live';
+        };
+        es.onerror = () => {
+          dot.classList.remove('on');
+          text.textContent = 'reconnecting…';
+        };
+        es.onmessage = () => refresh();
+      }
+
+      init();
+    </script>
+  </body>
+</html>
