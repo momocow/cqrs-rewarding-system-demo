@@ -356,6 +356,7 @@
           month: 'short',
           day: 'numeric',
           year: 'numeric',
+          timeZone: 'UTC',
         });
       const pct = (n) => `${Math.round(n * 1000) / 10}%`;
       const selectedOrg = () => state.data?.organizations[state.orgIndex];
@@ -393,8 +394,11 @@
         if (covered) return;
 
         const ref = new Date();
-        const start = new Date(ref.getFullYear(), ref.getMonth(), 1);
-        const end = new Date(ref.getFullYear(), ref.getMonth() + 1, 1);
+        // build the month window in UTC so it aligns with the UTC+0 backend
+        const start = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), 1));
+        const end = new Date(
+          Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() + 1, 1),
+        );
         try {
           await postSession(start, end);
           state.data = await fetchData();
