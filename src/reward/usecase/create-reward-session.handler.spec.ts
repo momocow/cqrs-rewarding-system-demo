@@ -36,12 +36,17 @@ describe('CreateRewardSessionHandler', () => {
     const startTime = new Date('2026-07-01T00:00:00.000Z');
     const endTime = new Date('2026-08-01T00:00:00.000Z');
     await handler.execute(
-      new CreateRewardSessionCommand({ startTime, endTime }),
+      new CreateRewardSessionCommand({
+        organizationId: 'org-1',
+        startTime,
+        endTime,
+      }),
     );
 
     expect(calls).toEqual(['build', 'create', 'save', 'commit']);
     expect(repository.save).toHaveBeenCalledWith(aggregate);
     expect(builtWith).toMatchObject({
+      organizationId: 'org-1',
       startTime,
       endTime,
       totalTransactionPointAmount: 0,

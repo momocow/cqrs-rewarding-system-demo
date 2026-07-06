@@ -31,6 +31,7 @@ function buildSession(
 ): IRewardSessionEntity {
   return {
     id: 'session-1',
+    organizationId: 'org-1',
     totalTransactionPointAmount: 0,
     totalReceiptPointAmount: 0,
     totalTransactionAmount: 0,

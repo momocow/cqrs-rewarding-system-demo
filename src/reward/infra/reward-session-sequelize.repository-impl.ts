@@ -37,14 +37,18 @@ export class RewardSessionSequelizeRepositoryImpl
   ): Promise<RewardSessionAggregate> {
     const [organization, session] = await Promise.all([
       this.findOneOrganizationById(organizationId),
-      this.findOneActiveRewardSession(time),
+      this.findOneActiveRewardSession(organizationId, time),
     ]);
     const organizationObj = organization.toJSON();
     const sessionObj = session.toJSON();
     const [totalTransactionPointAmount, totalReceiptPointAmount] =
       await Promise.all([
-        this.sumPointAmount(session.id, RewardSource.Transaction),
-        this.sumPointAmount(session.id, RewardSource.Receipt),
+        this.sumPointAmount(
+          session.id,
+          organizationId,
+          RewardSource.Transaction,
+        ),
+        this.sumPointAmount(session.id, organizationId, RewardSource.Receipt),
       ]);
 
     return new this.AggregateClass(
@@ -77,6 +81,7 @@ export class RewardSessionSequelizeRepositoryImpl
       // persist reward session changes (insert on create, update otherwise)
       this.rewardSessionSequelize.upsert({
         id: root.id,
+        organizationId: root.organizationId,
         endTime: root.endTime,
         startTime: root.startTime,
         totalTransactionAmount: root.totalTransactionAmount,
@@ -114,12 +119,16 @@ export class RewardSessionSequelizeRepositoryImpl
     return organization;
   }
 
-  private async findOneActiveRewardSession(time: Date) {
-    const session = await this.rewardSessionSequelize.findActiveOne(time);
+  private async findOneActiveRewardSession(organizationId: string, time: Date) {
+    const session = await this.rewardSessionSequelize.findActiveOne(
+      organizationId,
+      time,
+    );
 
     if (!session) {
       throw new Error(
-        `active reward session (time=${time.toISOString()}) not found`,
+        `active reward session (organizationId=${organizationId}, ` +
+          `time=${time.toISOString()}) not found`,
       );
     }
 
@@ -128,11 +137,13 @@ export class RewardSessionSequelizeRepositoryImpl
 
   private async sumPointAmount(
     rewardSessionId: string,
+    organizationId: string,
     source: RewardSource,
   ): Promise<number> {
     const total = await this.pointSequelize.sum('amount', {
       where: {
         rewardSessionId,
+        organizationId,
         source,
       },
     });

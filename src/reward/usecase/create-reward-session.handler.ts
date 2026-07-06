@@ -16,6 +16,7 @@ export class CreateRewardSessionHandler implements ICommandHandler<CreateRewardS
     await this.sequelize.transaction(async () => {
       const session = this.rewardSessionRepository.build({
         id: randomUUID(),
+        organizationId: command.organizationId,
         startTime: command.startTime,
         endTime: command.endTime,
         totalTransactionPointAmount: 0,

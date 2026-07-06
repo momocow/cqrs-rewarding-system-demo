@@ -3,6 +3,7 @@ import { Entity, IEntity } from '@/utils/ddd';
 import { RewardPolicyValueObject } from './reward-policy.value-object';
 
 export interface IRewardSessionEntity extends IEntity {
+  organizationId: string;
   totalTransactionPointAmount: number;
   totalReceiptPointAmount: number;
   totalTransactionAmount: number;
@@ -17,6 +18,7 @@ export class RewardSessionEntity
   extends Entity<IRewardSessionEntity>
   implements IRewardSessionEntity
 {
+  declare public organizationId: string;
   declare public totalTransactionPointAmount: number;
   declare public totalReceiptPointAmount: number;
   declare public totalTransactionAmount: number;

@@ -360,6 +360,13 @@
         });
       const pct = (n) => `${Math.round(n * 1000) / 10}%`;
       const selectedOrg = () => state.data?.organizations[state.orgIndex];
+      // Reward sessions are per-organization; the panel only ever shows the
+      // sessions that belong to the currently selected org.
+      const sessionsForSelectedOrg = () => {
+        const org = selectedOrg();
+        if (!org || !state.data) return [];
+        return state.data.sessions.filter((s) => s.organizationId === org.id);
+      };
 
       async function fetchData() {
         const res = await fetch('/reward-sessions');
@@ -383,24 +390,32 @@
         connectSse();
       }
 
-      // if no session covers the current calendar month, create one
+      // ensure every org has a session covering the current calendar month;
+      // sessions are per-org, so create one for each org that's missing it
       async function ensureCurrentMonth() {
         const now = Date.now();
-        const covered = state.data.sessions.some((s) => {
-          const start = new Date(s.startTime).getTime();
-          const end = new Date(s.endTime).getTime();
-          return start <= now && now < end;
-        });
-        if (covered) return;
-
         const ref = new Date();
         // build the month window in UTC so it aligns with the UTC+0 backend
         const start = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), 1));
         const end = new Date(
           Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() + 1, 1),
         );
+
+        const orgsMissing = state.data.organizations.filter(
+          (org) =>
+            !state.data.sessions.some((s) => {
+              if (s.organizationId !== org.id) return false;
+              const s0 = new Date(s.startTime).getTime();
+              const s1 = new Date(s.endTime).getTime();
+              return s0 <= now && now < s1;
+            }),
+        );
+        if (!orgsMissing.length) return;
+
         try {
-          await postSession(start, end);
+          await Promise.all(
+            orgsMissing.map((org) => postSession(org.id, start, end)),
+          );
           state.data = await fetchData();
           state.sessionIndex = 0; // newest (current month) is first in DESC order
         } catch {
@@ -417,7 +432,7 @@
         }
         state.sessionIndex = Math.max(
           0,
-          Math.min(state.sessionIndex, state.data.sessions.length - 1),
+          Math.min(state.sessionIndex, sessionsForSelectedOrg().length - 1),
         );
         renderTabs();
         renderPanel();
@@ -440,6 +455,9 @@
         sel.value = String(state.orgIndex);
         sel.onchange = (e) => {
           state.orgIndex = Number(e.target.value);
+          // the new org has its own session list — reset to its newest session
+          state.sessionIndex = 0;
+          renderTabs();
           renderPanel();
         };
       }
@@ -448,7 +466,7 @@
         const tabs = document.getElementById('tabs');
         tabs.innerHTML = '';
 
-        state.data.sessions.forEach((s, i) => {
+        sessionsForSelectedOrg().forEach((s, i) => {
           const active = i === state.sessionIndex;
           const chip = document.createElement('button');
           chip.className = `tab ${active ? 'active' : ''}`;
@@ -514,12 +532,13 @@
           ? `Credit limit: <b>${org.creditLimit.toLocaleString()}</b>`
           : '';
 
-        if (!state.data.sessions.length) {
+        const sessions = sessionsForSelectedOrg();
+        if (!sessions.length) {
           panel.innerHTML = `<div class="card empty">No reward sessions — use “+ New Reward Session”.</div>`;
           return;
         }
 
-        const s = state.data.sessions[state.sessionIndex];
+        const s = sessions[state.sessionIndex];
 
         const txnPolicies = [...s.transactionRewardPolicies].sort(
           (a, b) => a.threshold - b.threshold,
@@ -559,11 +578,12 @@
           </div>`;
       }
 
-      async function postSession(start, end) {
+      async function postSession(organizationId, start, end) {
         const res = await fetch('/reward-sessions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            organizationId,
             startTime: start.toISOString(),
             endTime: end.toISOString(),
           }),
@@ -581,7 +601,7 @@
           await fetch(`/transactions?${q}`, { method: 'DELETE' });
           await fetch(`/receipts?${q}`, { method: 'DELETE' });
           await fetch(`/reward-sessions/${session.id}`, { method: 'DELETE' });
-          await postSession(new Date(from), new Date(to));
+          await postSession(session.organizationId, new Date(from), new Date(to));
           await refresh();
         } catch (err) {
           alert(`Failed to reset session: ${err.message}`);

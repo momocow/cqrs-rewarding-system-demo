@@ -10,6 +10,7 @@ export interface IRewardDemoOrganization {
 
 export interface IRewardDemoSession {
   id: string;
+  organizationId: string;
   startTime: Date;
   endTime: Date;
   totalTransactionAmount: number;

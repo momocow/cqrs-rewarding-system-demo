@@ -24,6 +24,7 @@ import { RewardEventsEmitter } from './usecase/reward-events.emitter';
  * as ISO strings over the wire and converted to `Date` before dispatching.
  */
 export class CreateRewardSessionDto {
+  declare public readonly organizationId: string;
   declare public readonly startTime: string;
   declare public readonly endTime: string;
 }
@@ -40,6 +41,7 @@ export class RewardController {
   public async create(@Body() dto: CreateRewardSessionDto): Promise<void> {
     await this.commandBus.execute(
       new CreateRewardSessionCommand({
+        organizationId: dto.organizationId,
         startTime: new Date(dto.startTime),
         endTime: new Date(dto.endTime),
       }),
