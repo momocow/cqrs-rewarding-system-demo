@@ -68,3 +68,18 @@ $ npm run test         # unit tests
 $ npm run test:e2e     # e2e tests
 $ npm run test:cov     # coverage
 ```
+
+## Q&A
+
+1. Why does `RecognizeTransactionCommand` and `RecognizeReceiptCommand` ever need?
+
+> Because as a minimum requirement in rewarding domain, it needs total amount of corresponding data to calculate rewarding (in points).
+>
+> If dedupe is needed for the 2 commands, the domain models should also track respective IDs.
+
+2. Why are `RecognizeTransactionCommand` and `ApplyTransactionRewardCommand` separate commands? (Same as `RecognizeReceiptCommand` and `ApplyReceiptRewardCommand`)
+
+> Because a recognition and a rewarding is not 1-1 relationship.
+> They can actually be N-1 relationship,
+> which indicates that we can easily perform throttling between a recognition and a rewarding
+> to mitigate bottleneck.
