@@ -17,8 +17,9 @@ const spend = (amount: number): ITransaction => ({
   clearedTime: new Date('2026-07-15T00:00:00.000Z'),
   type: TransactionType.Spend,
 });
+// Refund amounts are stored negative; callers pass the refunded magnitude.
 const refund = (amount: number): ITransaction => ({
-  ...spend(amount),
+  ...spend(-Math.abs(amount)),
   type: TransactionType.Refund,
 });
 

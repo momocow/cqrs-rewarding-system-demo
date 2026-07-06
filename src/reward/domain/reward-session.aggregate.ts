@@ -1,4 +1,3 @@
-import { TransactionType } from '@/transaction/types';
 import { Aggregate } from '@/utils/ddd';
 import { sum } from '@/utils/reducer';
 
@@ -54,14 +53,11 @@ export class RewardSessionAggregate extends Aggregate<
    *
    */
   public recognizeTransaction(transaction: ITransaction) {
-    const signedAmount =
-      transaction.type === TransactionType.Refund
-        ? -transaction.amount
-        : transaction.amount;
-    // a refund can only claw back down to zero, never negative
+    // amount is already signed (refunds are negative); a refund can only claw
+    // back down to zero, never negative.
     this.root.totalTransactionAmount = Math.max(
       0,
-      this.root.totalTransactionAmount + signedAmount,
+      this.root.totalTransactionAmount + transaction.amount,
     );
 
     this.apply(

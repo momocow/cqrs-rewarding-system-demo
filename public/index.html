@@ -595,12 +595,15 @@
           const status = document.getElementById('txnStatus');
           if (!org) return (status.textContent = 'select an organization first');
           const f = e.target;
+          // refunds are sent as negative amounts; the field holds the magnitude
+          const magnitude = Math.abs(Number(f.amount.value));
+          const amount = f.type.value === 'refund' ? -magnitude : magnitude;
           await submit(
             '/transactions',
             {
               organizationId: org.id,
               cardId: f.cardId.value,
-              amount: Number(f.amount.value),
+              amount,
               type: f.type.value,
               merchant: f.merchant.value,
             },

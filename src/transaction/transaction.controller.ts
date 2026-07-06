@@ -26,8 +26,12 @@ export class TransactionController {
 
   @Post()
   public async create(@Body() dto: CreateTransactionDto): Promise<void> {
-    if (dto.amount < 0) {
-      throw new BadRequestException('amount must be non-negative');
+    if (dto.type === TransactionType.Refund) {
+      if (dto.amount >= 0) {
+        throw new BadRequestException('refund amount must be negative');
+      }
+    } else if (dto.amount < 0) {
+      throw new BadRequestException('spend amount must be non-negative');
     }
 
     await this.commandBus.execute(
