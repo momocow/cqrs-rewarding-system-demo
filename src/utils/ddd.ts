@@ -104,3 +104,11 @@ export abstract class RepositoryImpl<
     );
   }
 }
+
+/**
+ * Backend-agnostic unit of work. The Sequelize impl runs `work` inside a
+ * database transaction; the in-memory impl just invokes it.
+ */
+export abstract class UnitOfWork {
+  public abstract run<T>(work: () => Promise<T>): Promise<T>;
+}
