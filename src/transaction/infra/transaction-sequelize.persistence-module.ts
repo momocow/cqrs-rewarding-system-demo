@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { SequelizeModule } from '@nestjs/sequelize';
 
 import { SequelizeUnitOfWork } from '@/persistence/sequelize-unit-of-work';
@@ -9,7 +10,7 @@ import { TransactionSequelize } from './transaction.sequelize';
 import { TransactionSequelizeRepositoryImpl } from './transaction-sequelize.repository-impl';
 
 @Module({
-  imports: [SequelizeModule.forFeature([TransactionSequelize])],
+  imports: [CqrsModule, SequelizeModule.forFeature([TransactionSequelize])],
   providers: [
     {
       provide: TransactionRepository,
