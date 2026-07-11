@@ -1,27 +1,28 @@
 import { Module } from '@nestjs/common';
+import { ConditionalModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
-import { SequelizeModule } from '@nestjs/sequelize';
 
-import { TransactionRepository } from './domain/transaction.repository';
-import { TransactionSequelize } from './infra/transaction.sequelize';
-import { TransactionSequelizeRepositoryImpl } from './infra/transaction-sequelize.repository-impl';
+import { isMemory, isSequelize } from '@/persistence/storage-driver';
+
+import { TransactionInMemoryPersistenceModule } from './infra/in-memory/transaction-in-memory.persistence-module';
+import { TransactionSequelizePersistenceModule } from './infra/sequelize/transaction-sequelize.persistence-module';
 import { TransactionController } from './transaction.controller';
 import { CreateTransactionHandler } from './usecase/create-transaction.handler';
 import { DeleteTransactionsHandler } from './usecase/delete-transactions.handler';
 
 @Module({
-  imports: [CqrsModule, SequelizeModule.forFeature([TransactionSequelize])],
-  controllers: [TransactionController],
-  providers: [
-    // command handlers
-    CreateTransactionHandler,
-    DeleteTransactionsHandler,
-
-    // infra
-    {
-      provide: TransactionRepository,
-      useClass: TransactionSequelizeRepositoryImpl,
-    },
+  imports: [
+    CqrsModule,
+    ConditionalModule.registerWhen(
+      TransactionSequelizePersistenceModule,
+      isSequelize,
+    ),
+    ConditionalModule.registerWhen(
+      TransactionInMemoryPersistenceModule,
+      isMemory,
+    ),
   ],
+  controllers: [TransactionController],
+  providers: [CreateTransactionHandler, DeleteTransactionsHandler],
 })
 export class TransactionModule {}

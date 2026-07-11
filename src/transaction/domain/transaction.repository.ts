@@ -9,4 +9,5 @@ import { ITransactionEntity } from './transaction.entity';
  */
 export abstract class TransactionRepository extends Repository<TransactionAggregate> {
   public abstract build(transaction: ITransactionEntity): TransactionAggregate;
+  public abstract deleteByClearedWindow(from: Date, to: Date): Promise<void>;
 }

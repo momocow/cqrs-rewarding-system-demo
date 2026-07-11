@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Sequelize } from 'sequelize-typescript';
+
+import { UnitOfWork } from '@/utils/ddd';
 
 import { RewardSessionRepository } from '../domain/reward-session.repository';
 import { ApplyReceiptRewardCommand } from './apply-receipt-reward.command';
@@ -8,11 +9,11 @@ import { ApplyReceiptRewardCommand } from './apply-receipt-reward.command';
 export class ApplyReceiptRewardHandler implements ICommandHandler<ApplyReceiptRewardCommand> {
   public constructor(
     private readonly rewardSessionRepository: RewardSessionRepository,
-    private readonly sequelize: Sequelize,
+    private readonly unitOfWork: UnitOfWork,
   ) {}
 
   public async execute(command: ApplyReceiptRewardCommand): Promise<void> {
-    await this.sequelize.transaction(async () => {
+    await this.unitOfWork.run(async () => {
       const session = await this.rewardSessionRepository.findOneActive(
         command.organizationId,
         command.time,

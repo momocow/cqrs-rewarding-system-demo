@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { EventPublisher } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 
 import { RepositoryImpl } from '@/utils/ddd';
 
-import { TransactionAggregate } from '../domain/transaction.aggregate';
-import { ITransactionEntity } from '../domain/transaction.entity';
-import { TransactionRepository } from '../domain/transaction.repository';
+import { TransactionAggregate } from '../../domain/transaction.aggregate';
+import { ITransactionEntity } from '../../domain/transaction.entity';
+import { TransactionRepository } from '../../domain/transaction.repository';
 import { TransactionSequelize } from './transaction.sequelize';
 
 @Injectable()
@@ -41,6 +42,12 @@ export class TransactionSequelizeRepositoryImpl
       type: root.type,
       merchant: root.merchant,
       clearedAt: root.clearedAt,
+    });
+  }
+
+  public async deleteByClearedWindow(from: Date, to: Date): Promise<void> {
+    await this.transactionSequelize.destroy({
+      where: { clearedAt: { [Op.gte]: from, [Op.lt]: to } },
     });
   }
 }

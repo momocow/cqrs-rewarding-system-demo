@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
+import { ConditionalModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
-import { SequelizeModule } from '@nestjs/sequelize';
 
-import { RewardSessionRepository } from './domain/reward-session.repository';
-import { OrganizationSequelize } from './infra/organization.sequelize';
-import { PointSequelize } from './infra/point.sequelize';
-import { RewardSessionSequelize } from './infra/reward-session.sequelize';
-import { RewardSessionSequelizeRepositoryImpl } from './infra/reward-session-sequelize.repository-impl';
+import { isMemory, isSequelize } from '@/persistence/storage-driver';
+
+import { RewardInMemoryPersistenceModule } from './infra/in-memory/reward-in-memory.persistence-module';
+import { RewardSequelizePersistenceModule } from './infra/sequelize/reward-sequelize.persistence-module';
 import { RewardController } from './reward.controller';
 import { ApplyReceiptRewardHandler } from './usecase/apply-receipt-reward.handler';
 import { ApplyTransactionRewardHandler } from './usecase/apply-transaction-reward.handler';
@@ -22,11 +21,11 @@ import { RewardEventsEmitter } from './usecase/reward-events.emitter';
 @Module({
   imports: [
     CqrsModule,
-    SequelizeModule.forFeature([
-      OrganizationSequelize,
-      PointSequelize,
-      RewardSessionSequelize,
-    ]),
+    ConditionalModule.registerWhen(
+      RewardSequelizePersistenceModule,
+      isSequelize,
+    ),
+    ConditionalModule.registerWhen(RewardInMemoryPersistenceModule, isMemory),
   ],
   controllers: [RewardController],
   providers: [
@@ -49,12 +48,6 @@ import { RewardEventsEmitter } from './usecase/reward-events.emitter';
 
     // in-process emitter backing the SSE stream
     RewardEventsEmitter,
-
-    // infra
-    {
-      provide: RewardSessionRepository,
-      useClass: RewardSessionSequelizeRepositoryImpl,
-    },
   ],
 })
 export class RewardModule {}

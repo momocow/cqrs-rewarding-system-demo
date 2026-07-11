@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
-import { Sequelize } from 'sequelize-typescript';
+
+import { UnitOfWork } from '@/utils/ddd';
 
 import { TransactionRepository } from '../domain/transaction.repository';
 import { CreateTransactionCommand } from './create-transaction.command';
@@ -9,11 +10,11 @@ import { CreateTransactionCommand } from './create-transaction.command';
 export class CreateTransactionHandler implements ICommandHandler<CreateTransactionCommand> {
   public constructor(
     private readonly transactionRepository: TransactionRepository,
-    private readonly sequelize: Sequelize,
+    private readonly unitOfWork: UnitOfWork,
   ) {}
 
   public async execute(command: CreateTransactionCommand): Promise<void> {
-    await this.sequelize.transaction(async () => {
+    await this.unitOfWork.run(async () => {
       const transaction = this.transactionRepository.build({
         id: randomUUID(),
         organizationId: command.organizationId,

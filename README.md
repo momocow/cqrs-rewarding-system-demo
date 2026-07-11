@@ -61,6 +61,20 @@ $ npm run start:prod   # production (node dist/main)
 
 The static demo page is served at `/index.html`.
 
+### Storage driver
+
+The app selects its persistence backend at startup via `STORAGE_DRIVER`:
+
+- `STORAGE_DRIVER=sequelize` (default) — Postgres via Sequelize. Requires the
+  database, migrations, and seed described above.
+- `STORAGE_DRIVER=memory` — in-memory store, no database required. The reward
+  demo data is seeded automatically at boot; transactions and receipts start
+  empty and do not persist across restarts.
+
+```bash
+$ STORAGE_DRIVER=memory npm run start
+```
+
 ## Test
 
 ```bash
