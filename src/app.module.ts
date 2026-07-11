@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 
 import { AppController } from './app.controller';
@@ -9,6 +10,7 @@ import { TransactionModule } from './transaction';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     // In production (Heroku) connect via DATABASE_URL over SSL; fall back to
     // local Postgres for development.
     SequelizeModule.forRoot(
