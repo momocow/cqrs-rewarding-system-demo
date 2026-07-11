@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Sequelize } from 'sequelize-typescript';
+
+import { UnitOfWork } from '@/utils/ddd';
 
 import { RewardSessionRepository } from '../domain/reward-session.repository';
 import { DeleteRewardSessionCommand } from './delete-reward-session.command';
@@ -8,11 +9,11 @@ import { DeleteRewardSessionCommand } from './delete-reward-session.command';
 export class DeleteRewardSessionHandler implements ICommandHandler<DeleteRewardSessionCommand> {
   public constructor(
     private readonly rewardSessionRepository: RewardSessionRepository,
-    private readonly sequelize: Sequelize,
+    private readonly unitOfWork: UnitOfWork,
   ) {}
 
   public async execute(command: DeleteRewardSessionCommand): Promise<void> {
-    await this.sequelize.transaction(async () => {
+    await this.unitOfWork.run(async () => {
       await this.rewardSessionRepository.deleteById(command.sessionId);
     });
   }

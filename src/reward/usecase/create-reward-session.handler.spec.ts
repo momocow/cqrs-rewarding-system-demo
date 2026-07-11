@@ -23,14 +23,14 @@ describe('CreateRewardSessionHandler', () => {
       }),
     };
 
-    // mimic sequelize.transaction(cb) by simply invoking the callback
-    const sequelize = {
-      transaction: jest.fn((cb: () => Promise<unknown>) => cb()),
+    // mimic the unit of work by simply invoking the callback
+    const unitOfWork = {
+      run: jest.fn((work: () => Promise<unknown>) => work()),
     };
 
     const handler = new CreateRewardSessionHandler(
       repository as never,
-      sequelize as never,
+      unitOfWork as never,
     );
 
     const startTime = new Date('2026-07-01T00:00:00.000Z');
@@ -54,7 +54,6 @@ describe('CreateRewardSessionHandler', () => {
       totalTransactionAmount: 0,
       totalReceiptCount: 0,
     });
-    // id is server-generated (a non-empty string)
     expect(typeof (builtWith as { id: string }).id).toBe('string');
     expect((builtWith as { id: string }).id.length).toBeGreaterThan(0);
   });
