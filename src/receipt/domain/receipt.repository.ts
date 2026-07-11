@@ -9,4 +9,5 @@ import { IReceiptEntity } from './receipt.entity';
  */
 export abstract class ReceiptRepository extends Repository<ReceiptAggregate> {
   public abstract build(receipt: IReceiptEntity): ReceiptAggregate;
+  public abstract deleteByCreatedWindow(from: Date, to: Date): Promise<void>;
 }

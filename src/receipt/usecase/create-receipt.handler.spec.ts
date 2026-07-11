@@ -23,14 +23,14 @@ describe('CreateReceiptHandler', () => {
       }),
     };
 
-    // mimic sequelize.transaction(cb) by simply invoking the callback
-    const sequelize = {
-      transaction: jest.fn((cb: () => Promise<unknown>) => cb()),
+    // mimic UnitOfWork.run(work) by simply invoking the callback
+    const unitOfWork = {
+      run: jest.fn((work: () => Promise<unknown>) => work()),
     };
 
     const handler = new CreateReceiptHandler(
       repository as never,
-      sequelize as never,
+      unitOfWork as never,
     );
 
     await handler.execute(

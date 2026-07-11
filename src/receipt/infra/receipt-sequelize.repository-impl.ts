@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventPublisher } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op, WhereOptions } from 'sequelize';
 
 import { RepositoryImpl } from '@/utils/ddd';
 
@@ -37,6 +38,13 @@ export class ReceiptSequelizeRepositoryImpl
       id: root.id,
       organizationId: root.organizationId,
       content: root.content,
+    });
+  }
+
+  public async deleteByCreatedWindow(from: Date, to: Date): Promise<void> {
+    // createdAt is a Sequelize-managed timestamp, not in the typed attributes
+    await this.receiptSequelize.destroy({
+      where: { createdAt: { [Op.gte]: from, [Op.lt]: to } } as WhereOptions,
     });
   }
 }
