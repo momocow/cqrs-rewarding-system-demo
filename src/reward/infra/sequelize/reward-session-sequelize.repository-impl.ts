@@ -5,11 +5,11 @@ import { randomUUID } from 'crypto';
 
 import { RepositoryImpl } from '@/utils/ddd';
 
-import { RewardSessionAggregate } from '../domain/reward-session.aggregate';
-import { IRewardSessionEntity } from '../domain/reward-session.entity';
-import { PointRewardedEvent } from '../domain/reward-session.event';
-import { RewardSessionRepository } from '../domain/reward-session.repository';
-import { RewardSource } from '../types';
+import { RewardSessionAggregate } from '../../domain/reward-session.aggregate';
+import { IRewardSessionEntity } from '../../domain/reward-session.entity';
+import { PointRewardedEvent } from '../../domain/reward-session.event';
+import { RewardSessionRepository } from '../../domain/reward-session.repository';
+import { RewardSource } from '../../types';
 import { OrganizationSequelize } from './organization.sequelize';
 import { PointSequelize } from './point.sequelize';
 import { RewardSessionSequelize } from './reward-session.sequelize';

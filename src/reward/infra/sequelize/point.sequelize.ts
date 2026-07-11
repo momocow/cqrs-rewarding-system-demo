@@ -7,7 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 
-import { PointType, RewardSource } from '../types';
+import { PointType, RewardSource } from '../../types';
 
 export interface IPointSequelize {
   id: string;

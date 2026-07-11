@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import {
   IRewardDemoReadModel,
   RewardQueryRepository,
-} from '../domain/reward-query.repository';
-import { RewardSource } from '../types';
+} from '../../domain/reward-query.repository';
+import { RewardSource } from '../../types';
 import { RewardInMemoryStore } from './reward.in-memory-store';
 
 @Injectable()

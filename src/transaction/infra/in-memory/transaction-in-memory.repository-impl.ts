@@ -3,9 +3,9 @@ import { EventPublisher } from '@nestjs/cqrs';
 
 import { RepositoryImpl } from '@/utils/ddd';
 
-import { TransactionAggregate } from '../domain/transaction.aggregate';
-import { ITransactionEntity } from '../domain/transaction.entity';
-import { TransactionRepository } from '../domain/transaction.repository';
+import { TransactionAggregate } from '../../domain/transaction.aggregate';
+import { ITransactionEntity } from '../../domain/transaction.entity';
+import { TransactionRepository } from '../../domain/transaction.repository';
 
 @Injectable()
 export class TransactionInMemoryRepositoryImpl

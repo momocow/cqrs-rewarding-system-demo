@@ -4,8 +4,8 @@ import { CqrsModule } from '@nestjs/cqrs';
 
 import { isMemory, isSequelize } from '@/persistence/storage-driver';
 
-import { TransactionInMemoryPersistenceModule } from './infra/transaction-in-memory.persistence-module';
-import { TransactionSequelizePersistenceModule } from './infra/transaction-sequelize.persistence-module';
+import { TransactionInMemoryPersistenceModule } from './infra/in-memory/transaction-in-memory.persistence-module';
+import { TransactionSequelizePersistenceModule } from './infra/sequelize/transaction-sequelize.persistence-module';
 import { TransactionController } from './transaction.controller';
 import { CreateTransactionHandler } from './usecase/create-transaction.handler';
 import { DeleteTransactionsHandler } from './usecase/delete-transactions.handler';

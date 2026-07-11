@@ -5,8 +5,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { SequelizeUnitOfWork } from '@/persistence/sequelize-unit-of-work';
 import { UnitOfWork } from '@/utils/ddd';
 
-import { RewardQueryRepository } from '../domain/reward-query.repository';
-import { RewardSessionRepository } from '../domain/reward-session.repository';
+import { RewardQueryRepository } from '../../domain/reward-query.repository';
+import { RewardSessionRepository } from '../../domain/reward-session.repository';
 import { OrganizationSequelize } from './organization.sequelize';
 import { PointSequelize } from './point.sequelize';
 import { RewardQuerySequelizeRepositoryImpl } from './reward-query-sequelize.repository-impl';

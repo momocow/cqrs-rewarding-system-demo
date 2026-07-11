@@ -5,9 +5,9 @@ import { Op, WhereOptions } from 'sequelize';
 
 import { RepositoryImpl } from '@/utils/ddd';
 
-import { ReceiptAggregate } from '../domain/receipt.aggregate';
-import { IReceiptEntity } from '../domain/receipt.entity';
-import { ReceiptRepository } from '../domain/receipt.repository';
+import { ReceiptAggregate } from '../../domain/receipt.aggregate';
+import { IReceiptEntity } from '../../domain/receipt.entity';
+import { ReceiptRepository } from '../../domain/receipt.repository';
 import { ReceiptSequelize } from './receipt.sequelize';
 
 @Injectable()

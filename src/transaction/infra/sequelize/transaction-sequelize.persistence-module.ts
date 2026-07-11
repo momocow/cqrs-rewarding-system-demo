@@ -5,7 +5,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { SequelizeUnitOfWork } from '@/persistence/sequelize-unit-of-work';
 import { UnitOfWork } from '@/utils/ddd';
 
-import { TransactionRepository } from '../domain/transaction.repository';
+import { TransactionRepository } from '../../domain/transaction.repository';
 import { TransactionSequelize } from './transaction.sequelize';
 import { TransactionSequelizeRepositoryImpl } from './transaction-sequelize.repository-impl';
 

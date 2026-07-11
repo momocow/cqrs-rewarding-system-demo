@@ -7,7 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 
-import { TransactionType } from '../types';
+import { TransactionType } from '../../types';
 
 export interface ITransactionSequelize {
   id: string;

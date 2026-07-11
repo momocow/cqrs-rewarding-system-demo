@@ -5,8 +5,8 @@ import { col, fn } from 'sequelize';
 import {
   IRewardDemoReadModel,
   RewardQueryRepository,
-} from '../domain/reward-query.repository';
-import { RewardSource } from '../types';
+} from '../../domain/reward-query.repository';
+import { RewardSource } from '../../types';
 import { OrganizationSequelize } from './organization.sequelize';
 import { PointSequelize } from './point.sequelize';
 import { RewardSessionSequelize } from './reward-session.sequelize';

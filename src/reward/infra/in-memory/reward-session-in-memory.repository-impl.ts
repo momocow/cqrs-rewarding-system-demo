@@ -4,11 +4,11 @@ import { randomUUID } from 'crypto';
 
 import { RepositoryImpl } from '@/utils/ddd';
 
-import { RewardSessionAggregate } from '../domain/reward-session.aggregate';
-import { IRewardSessionEntity } from '../domain/reward-session.entity';
-import { PointRewardedEvent } from '../domain/reward-session.event';
-import { RewardSessionRepository } from '../domain/reward-session.repository';
-import { RewardSource } from '../types';
+import { RewardSessionAggregate } from '../../domain/reward-session.aggregate';
+import { IRewardSessionEntity } from '../../domain/reward-session.entity';
+import { PointRewardedEvent } from '../../domain/reward-session.event';
+import { RewardSessionRepository } from '../../domain/reward-session.repository';
+import { RewardSource } from '../../types';
 import { RewardInMemoryStore } from './reward.in-memory-store';
 
 @Injectable()

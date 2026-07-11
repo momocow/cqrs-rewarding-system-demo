@@ -4,8 +4,8 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { InMemoryUnitOfWork } from '@/persistence/in-memory-unit-of-work';
 import { UnitOfWork } from '@/utils/ddd';
 
-import { RewardQueryRepository } from '../domain/reward-query.repository';
-import { RewardSessionRepository } from '../domain/reward-session.repository';
+import { RewardQueryRepository } from '../../domain/reward-query.repository';
+import { RewardSessionRepository } from '../../domain/reward-session.repository';
 import { RewardInMemoryStore } from './reward.in-memory-store';
 import { seedRewardStore } from './reward-in-memory.seed';
 import { RewardQueryInMemoryRepositoryImpl } from './reward-query-in-memory.repository-impl';

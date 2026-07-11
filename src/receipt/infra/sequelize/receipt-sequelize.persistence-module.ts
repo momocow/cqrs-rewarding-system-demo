@@ -5,7 +5,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { SequelizeUnitOfWork } from '@/persistence/sequelize-unit-of-work';
 import { UnitOfWork } from '@/utils/ddd';
 
-import { ReceiptRepository } from '../domain/receipt.repository';
+import { ReceiptRepository } from '../../domain/receipt.repository';
 import { ReceiptSequelize } from './receipt.sequelize';
 import { ReceiptSequelizeRepositoryImpl } from './receipt-sequelize.repository-impl';
 

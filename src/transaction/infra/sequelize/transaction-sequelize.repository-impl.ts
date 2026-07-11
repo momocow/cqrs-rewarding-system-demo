@@ -5,9 +5,9 @@ import { Op } from 'sequelize';
 
 import { RepositoryImpl } from '@/utils/ddd';
 
-import { TransactionAggregate } from '../domain/transaction.aggregate';
-import { ITransactionEntity } from '../domain/transaction.entity';
-import { TransactionRepository } from '../domain/transaction.repository';
+import { TransactionAggregate } from '../../domain/transaction.aggregate';
+import { ITransactionEntity } from '../../domain/transaction.entity';
+import { TransactionRepository } from '../../domain/transaction.repository';
 import { TransactionSequelize } from './transaction.sequelize';
 
 @Injectable()

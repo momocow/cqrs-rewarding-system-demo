@@ -3,9 +3,9 @@ import { EventPublisher } from '@nestjs/cqrs';
 
 import { RepositoryImpl } from '@/utils/ddd';
 
-import { ReceiptAggregate } from '../domain/receipt.aggregate';
-import { IReceiptEntity } from '../domain/receipt.entity';
-import { ReceiptRepository } from '../domain/receipt.repository';
+import { ReceiptAggregate } from '../../domain/receipt.aggregate';
+import { IReceiptEntity } from '../../domain/receipt.entity';
+import { ReceiptRepository } from '../../domain/receipt.repository';
 
 interface IStoredReceipt {
   root: IReceiptEntity;

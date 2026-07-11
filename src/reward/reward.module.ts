@@ -4,8 +4,8 @@ import { CqrsModule } from '@nestjs/cqrs';
 
 import { isMemory, isSequelize } from '@/persistence/storage-driver';
 
-import { RewardInMemoryPersistenceModule } from './infra/reward-in-memory.persistence-module';
-import { RewardSequelizePersistenceModule } from './infra/reward-sequelize.persistence-module';
+import { RewardInMemoryPersistenceModule } from './infra/in-memory/reward-in-memory.persistence-module';
+import { RewardSequelizePersistenceModule } from './infra/sequelize/reward-sequelize.persistence-module';
 import { RewardController } from './reward.controller';
 import { ApplyReceiptRewardHandler } from './usecase/apply-receipt-reward.handler';
 import { ApplyTransactionRewardHandler } from './usecase/apply-transaction-reward.handler';

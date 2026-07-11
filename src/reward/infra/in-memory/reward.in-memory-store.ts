@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { PointType, RewardSource } from '../types';
+import { PointType, RewardSource } from '../../types';
 
 export interface IStoredOrganization {
   id: string;

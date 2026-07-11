@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 
-import { PointType, RewardSource } from '../types';
+import { PointType, RewardSource } from '../../types';
 import { RewardInMemoryStore } from './reward.in-memory-store';
 
 const ORG_A = '11111111-1111-1111-1111-111111111111';

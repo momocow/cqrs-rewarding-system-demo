@@ -1,4 +1,4 @@
-import { TransactionType } from '../types';
+import { TransactionType } from '../../types';
 import { TransactionInMemoryRepositoryImpl } from './transaction-in-memory.repository-impl';
 
 const makeRepo = () => {
