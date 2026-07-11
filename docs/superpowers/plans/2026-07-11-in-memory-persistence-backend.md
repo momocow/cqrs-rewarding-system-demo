@@ -695,7 +695,9 @@ export class ReceiptInMemoryRepositoryImpl
   public findOneById(id: string): Promise<ReceiptAggregate> {
     const record = this.store.get(id);
     if (!record) {
-      throw new Error(`receipt (id=${id}) not found`);
+      // Reject (do not throw synchronously) so callers and `rejects.toThrow`
+      // assertions see a rejected promise rather than a sync exception.
+      return Promise.reject(new Error(`receipt (id=${id}) not found`));
     }
     return Promise.resolve(this.build(record.root));
   }
@@ -732,6 +734,7 @@ Create `src/receipt/infra/receipt-sequelize.persistence-module.ts`:
 
 ```ts
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { SequelizeModule } from '@nestjs/sequelize';
 
 import { SequelizeUnitOfWork } from '@/persistence/sequelize-unit-of-work';
@@ -742,7 +745,7 @@ import { ReceiptSequelize } from './receipt.sequelize';
 import { ReceiptSequelizeRepositoryImpl } from './receipt-sequelize.repository-impl';
 
 @Module({
-  imports: [SequelizeModule.forFeature([ReceiptSequelize])],
+  imports: [CqrsModule, SequelizeModule.forFeature([ReceiptSequelize])],
   providers: [
     { provide: ReceiptRepository, useClass: ReceiptSequelizeRepositoryImpl },
     { provide: UnitOfWork, useClass: SequelizeUnitOfWork },
@@ -752,10 +755,13 @@ import { ReceiptSequelizeRepositoryImpl } from './receipt-sequelize.repository-i
 export class ReceiptSequelizePersistenceModule {}
 ```
 
+> `CqrsModule` is imported because `ReceiptSequelizeRepositoryImpl` extends `RepositoryImpl`, whose constructor injects `EventPublisher` (from `@nestjs/cqrs`). A persistence module only sees providers it declares or imports, so without this import DI fails at boot with `UnknownDependenciesException` for `EventPublisher`.
+
 Create `src/receipt/infra/receipt-in-memory.persistence-module.ts`:
 
 ```ts
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 
 import { InMemoryUnitOfWork } from '@/persistence/in-memory-unit-of-work';
 import { UnitOfWork } from '@/utils/ddd';
@@ -764,6 +770,7 @@ import { ReceiptRepository } from '../domain/receipt.repository';
 import { ReceiptInMemoryRepositoryImpl } from './receipt-in-memory.repository-impl';
 
 @Module({
+  imports: [CqrsModule],
   providers: [
     { provide: ReceiptRepository, useClass: ReceiptInMemoryRepositoryImpl },
     { provide: UnitOfWork, useClass: InMemoryUnitOfWork },
@@ -772,6 +779,8 @@ import { ReceiptInMemoryRepositoryImpl } from './receipt-in-memory.repository-im
 })
 export class ReceiptInMemoryPersistenceModule {}
 ```
+
+> `CqrsModule` is imported so `ReceiptInMemoryRepositoryImpl` (extends `RepositoryImpl`) can inject `EventPublisher`. See the note on the Sequelize persistence module above.
 
 - [ ] **Step 8: Rewire `ReceiptModule`**
 
@@ -1452,7 +1461,11 @@ export class RewardSessionInMemoryRepositoryImpl
   ): Promise<RewardSessionAggregate> {
     const organization = this.store.organizations.get(organizationId);
     if (!organization) {
-      throw new Error(`organization (id=${organizationId}) not found`);
+      // Reject rather than throw synchronously (this method is not `async`),
+      // so callers and `rejects.toThrow` assertions see a rejected promise.
+      return Promise.reject(
+        new Error(`organization (id=${organizationId}) not found`),
+      );
     }
 
     const session = [...this.store.sessions.values()].find(
@@ -1462,9 +1475,11 @@ export class RewardSessionInMemoryRepositoryImpl
         s.endTime > time,
     );
     if (!session) {
-      throw new Error(
-        `active reward session (organizationId=${organizationId}, ` +
-          `time=${time.toISOString()}) not found`,
+      return Promise.reject(
+        new Error(
+          `active reward session (organizationId=${organizationId}, ` +
+            `time=${time.toISOString()}) not found`,
+        ),
       );
     }
 
@@ -1491,7 +1506,7 @@ export class RewardSessionInMemoryRepositoryImpl
   public findOneById(id: string): Promise<RewardSessionAggregate> {
     const session = this.store.sessions.get(id);
     if (!session) {
-      throw new Error(`reward session (id=${id}) not found`);
+      return Promise.reject(new Error(`reward session (id=${id}) not found`));
     }
     return Promise.resolve(
       this.build({
@@ -1614,6 +1629,7 @@ Create `src/reward/infra/reward-sequelize.persistence-module.ts`:
 
 ```ts
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { SequelizeModule } from '@nestjs/sequelize';
 
 import { SequelizeUnitOfWork } from '@/persistence/sequelize-unit-of-work';
@@ -1629,6 +1645,7 @@ import { RewardSessionSequelizeRepositoryImpl } from './reward-session-sequelize
 
 @Module({
   imports: [
+    CqrsModule,
     SequelizeModule.forFeature([
       OrganizationSequelize,
       PointSequelize,
@@ -1651,6 +1668,7 @@ Create `src/reward/infra/reward-in-memory.persistence-module.ts`:
 
 ```ts
 import { Module, OnModuleInit } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 
 import { InMemoryUnitOfWork } from '@/persistence/in-memory-unit-of-work';
 import { UnitOfWork } from '@/utils/ddd';
@@ -1663,6 +1681,7 @@ import { RewardInMemoryStore } from './reward.in-memory-store';
 import { seedRewardStore } from './reward-in-memory.seed';
 
 @Module({
+  imports: [CqrsModule],
   providers: [
     RewardInMemoryStore,
     { provide: RewardSessionRepository, useClass: RewardSessionInMemoryRepositoryImpl },
