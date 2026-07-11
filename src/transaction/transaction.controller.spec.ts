@@ -38,7 +38,9 @@ describe('TransactionController', () => {
     const commandBus = { execute: jest.fn() };
     const controller = new TransactionController(commandBus as never);
 
-    await controller.create(dto({ type: TransactionType.Refund, amount: -300 }));
+    await controller.create(
+      dto({ type: TransactionType.Refund, amount: -300 }),
+    );
 
     expect(commandBus.execute).toHaveBeenCalledTimes(1);
   });
